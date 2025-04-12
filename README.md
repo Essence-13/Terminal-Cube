@@ -25,7 +25,7 @@ An interactive terminal-based Rubik’s Cube simulator and solver written in **C
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/rubiks-cube-visualizer.git
+git clone https://github.com/Essence-13/Terminal-Cube.git
 ```
 
 ### 2. Install the Kociemba solver (Python)
