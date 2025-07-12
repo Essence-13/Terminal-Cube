@@ -128,7 +128,7 @@ void solveCubeWithKociemba(const std::string& cubeState) {
         cout << endl;
     }
     cout<<endl;
-    usleep(300000000000000);
+    usleep(300000000000000); // usleep is depricated.
 
 }
 
