@@ -109,7 +109,7 @@ void Cube:: display(){
 
 void Cube:: reset(){
 
-    Front = std::vector<std::vector<std::string>> (dimension, std::vector<std::string>(dimension,"\033[42m   \033[0m")); //ANSI ESCAPE COLORS USED
+    Front = std::vector<std::vector<std::string>> (dimension, std::vector<std::string>(dimension,"\033[42m   \033[0m"));
     Bottom = std::vector<std::vector<std::string>> (dimension, std::vector<std::string>(dimension,"\033[44m   \033[0m"));
     Up = std::vector<std::vector<std::string>> (dimension, std::vector<std::string>(dimension,"\033[47m   \033[0m"));
     Down = std::vector<std::vector<std::string>> (dimension, std::vector<std::string>(dimension,"\033[43m   \033[0m"));
