@@ -87,6 +87,10 @@ g++ Cube.cpp -o cube
 
 ---
 
+## Snapshots
+
+https://github.com/user-attachments/assets/e7c92a91-6881-48c4-9f0a-7ba183d07d37
+
 ##  License
 
 This project is open-source under the MIT License.
