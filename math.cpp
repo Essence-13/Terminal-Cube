@@ -42,7 +42,7 @@ for(int i=0;i<dimension;i++){
     Right[i][0] = temp[i];
 }
 rotateMatrix(Front);
-display();}
+/*display();*/}
 
 void Cube_Math:: f(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -54,7 +54,7 @@ for(int i=0;i<dimension;i++){
     Left[dimension - 1-i][dimension - 1] = temp[i];
 }
 rotateMatrixAnticlockwise(Front);
-display();}
+/*display();*/}
 
 void Cube_Math:: R(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -66,7 +66,7 @@ for(int i=0;i<dimension;i++){
     Bottom[dimension - 1-i][0] = temp[i];
 }
 rotateMatrix(Right);
-display();}
+/*display();*/}
 
 void Cube_Math:: r(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -78,7 +78,7 @@ for(int i=0;i<dimension;i++){
     Front[i][dimension - 1] = temp[i];
 }
 rotateMatrixAnticlockwise(Right);
-display();}
+/*display();*/}
 
 void Cube_Math:: U(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -90,7 +90,7 @@ for(int i=0;i<dimension;i++){
     Left[0][i] = temp[i];
 }
 rotateMatrix(Up);
-display();}
+/*display();*/}
 
 void Cube_Math:: u(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -102,7 +102,7 @@ for(int i=0;i<dimension;i++){
     Right[0][i] = temp[i];
 }
 rotateMatrixAnticlockwise(Up);
-display();}
+/*display();*/}
 
 void Cube_Math:: B(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -114,7 +114,7 @@ for(int i=0;i<dimension;i++){
     Left[dimension - 1-i][0] = temp[i];
 }
 rotateMatrix(Bottom);
-display();}
+/*display();*/}
 
 void Cube_Math:: b(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -126,7 +126,7 @@ for(int i=0;i<dimension;i++){
     Right[i][dimension - 1] = temp[i];
 }
 rotateMatrixAnticlockwise(Bottom);
-display();}
+/*display();*/}
 
 void Cube_Math:: L(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -138,7 +138,7 @@ for(int i=0;i<dimension;i++){
     Front[i][0] = temp[i];
 }
 rotateMatrix(Left);
-display();}
+/*display();*/}
 
 void Cube_Math:: l(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -150,7 +150,7 @@ for(int i=0;i<dimension;i++){
     Bottom[dimension - 1-i][dimension - 1] = temp[i];
 }
 rotateMatrixAnticlockwise(Left);
-display();}
+/*display();*/}
 
 void Cube_Math:: D(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -162,7 +162,7 @@ for(int i=0;i<dimension;i++){
     Right[dimension - 1][i] = temp[i];
 }
 rotateMatrix(Down);
-display();}
+/*display();*/}
 
 void Cube_Math:: d(){
 std::vector<std::string> temp(dimension,"\033[0m ");
@@ -174,12 +174,10 @@ for(int i=0;i<dimension;i++){
     Left[dimension - 1][i] = temp[i];
 }
 rotateMatrixAnticlockwise(Down);
-display();}
+/*display();*/}
 
-void Cube_Math:: M(){
+void Cube_Math:: M(int col){
     std::vector<std::string> temp(dimension,"\033[0m ");
-    std::cout<<"Enter which column(0-based) to turn: "<<std::endl;
-    int col = -1; std::cin>>col;
     if(col >= dimension || col <=0){
         std::cout<<"Invalid column chosen. Try again."<<std::endl;
         return;
@@ -191,7 +189,7 @@ void Cube_Math:: M(){
         Bottom[dimension - 1-i][col] = Up[i][col];
         Up[i][col] = temp[i];
     }
-display();}
+/*display();*/}
 
 void Cube_Math:: m(){
     std::vector<std::string> temp(dimension,"\033[0m ");
@@ -208,7 +206,7 @@ void Cube_Math:: m(){
         Bottom[dimension - 1-i][col] = Down[i][col];
         Down[i][col] = temp[i];
     }
-display();}
+/*display();*/}
 
 void Cube_Math:: HM(){
     std::vector<std::string> temp(dimension,"\033[0m ");
@@ -225,7 +223,7 @@ void Cube_Math:: HM(){
         Bottom[row][i] = Left[row][i];
         Left[row][i] = temp[i];
     }
-display();}
+/*display();*/}
 
 void Cube_Math:: hm(){
     std::vector<std::string> temp(dimension,"\033[0m ");
@@ -242,4 +240,4 @@ void Cube_Math:: hm(){
         Bottom[row][i] = Right[row][i];
         Right[row][i] = temp[i];
     }
-display();}
+/*display();*/}

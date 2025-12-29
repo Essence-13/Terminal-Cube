@@ -1,57 +1,207 @@
-#include<iostream>
-#include "cube.h"
+#include "raylib.h"
 #include "math.h"
-#include <stdint.h>
+#include <iostream>
+#include <string>
+#include <cmath>
 
-void solveCubeWithKociemba(const std::string& cubeState) {
-    std::string command = "python -c \"import kociemba; print(kociemba.solve('" + cubeState + "'))\"";
-    system(command.c_str());
+// --- HELPER FUNCTIONS ---
+
+Color GetColorFromCode(std::string code) {
+    if (code.find("47m") != std::string::npos) return WHITE;
+    if (code.find("42m") != std::string::npos) return GREEN;
+    if (code.find("44m") != std::string::npos) return BLUE;
+    if (code.find("43m") != std::string::npos) return YELLOW;
+    if (code.find("41m") != std::string::npos) return RED;
+    if (code.find("45m") != std::string::npos) return ORANGE;
+    return BLACK; 
 }
+
+// Relative Move Logic (The "Quadrant System")
+void PerformRelativeMove(Cube_Math* cube, char move, int quadrant, bool prime) {
+    if (cube == nullptr) return;
+    char baseMoves[4] = {'F', 'R', 'B', 'L'};
+    int moveIndex = -1;
+    if (move == 'F') moveIndex = 0;
+    else if (move == 'R') moveIndex = 1;
+    else if (move == 'B') moveIndex = 2;
+    else if (move == 'L') moveIndex = 3;
+    
+    if (moveIndex != -1) {
+        int actualIndex = (moveIndex + quadrant) % 4;
+        move = baseMoves[actualIndex];
+    }
+
+    if (move == 'F') prime ? cube->f() : cube->F();
+    else if (move == 'R') prime ? cube->r() : cube->R();
+    else if (move == 'B') prime ? cube->b() : cube->B();
+    else if (move == 'L') prime ? cube->l() : cube->L();
+    else if (move == 'U') prime ? cube->u() : cube->U();
+    else if (move == 'D') prime ? cube->d() : cube->D();
+}
+
+// --- MAIN APPLICATION ---
 
 int main() {
-std::cout<<"Please Enter the dimension of the cube you want to visualize: "<<std::endl;
-std::cout<<"Please Note currently you only be able to get the solving sequence of a 3x3 cube."<<std::endl;
-int dim; std::cin>>dim;
-uint8_t dimension = static_cast<uint8_t>(dim);
-Cube_Math c(dimension); 
-c.display();
+    InitWindow(1000, 800, "Rubik's Cube Master");
+    SetTargetFPS(60);
 
-char s;
+    // Application States
+    enum AppState { MENU, CUBE };
+    AppState currentState = MENU;
 
+    // Cube Logic Pointer (Created dynamically after user chooses size)
+    Cube_Math* myCube = nullptr;
+    int cubeDim = 3; // Default
 
-std::cout<<"Use standard keyboard keys (U-F-R-D-B-L) to manuver the cube."
-<<std::endl<<"Use smallcase (u-f-r-d-b-l) to rotate a face in anti-clockwise direction."
-<<std::endl<<"Use ! to get the solving moves."
-<<std::endl<<"Use @ to reset the cube."
-<<std::endl<<"To solve the cube you will need kociemba library. Install it using pip install kociemba"
-<<std::endl;
-while(std::cin >> s){
-    if (s == 'F') c.F();
-    else if (s == 'f') c.f();
-    else if (s == 'U') c.U();
-    else if (s == 'u') c.u();
-    else if (s == 'R') c.R();
-    else if (s == 'r') c.r();
-    else if (s == 'D') c.D();
-    else if (s == 'd') c.d();
-    else if (s == 'L') c.L();
-    else if (s == 'l') c.l();
-    else if (s == 'B') c.B();
-    else if (s == 'b') c.b();
-    else if (s == '@') c.reset();
-    else if (s == 'M') c.M();
-    else if (s == 'm') c.m();
-    else if (s == 'X')c.HM();
-    else if (s == 'x')c.hm();
-    else if(s == '!'){
-        if(dim!=3){
-            std::cout<<"Currently cannot solve a "<<dim<<"x"<<dim<<" cube"<<std::endl;
-            continue;
+    // Camera Variables
+    Camera3D camera = { 0 };
+    camera.fovy = 45.0f;
+    camera.projection = CAMERA_PERSPECTIVE;
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    
+    float cameraAngleH = 1.0f;
+    float cameraAngleV = 0.5f;
+    float cameraDist = 10.0f;
+
+    while (!WindowShouldClose()) {
+        
+        // --- UPDATE LOGIC ---
+        
+        if (currentState == MENU) {
+            // Check keys 2-9 for quick selection
+            int key = GetKeyPressed();
+            if (key >= KEY_TWO && key <= KEY_NINE) {
+                cubeDim = key - KEY_ZERO;
+                // Initialize the cube and switch state
+                myCube = new Cube_Math(cubeDim);
+                cameraDist = cubeDim * 2.5f; 
+                currentState = CUBE;
+            }
         }
-        std::cout<<"To solve the cube(3x3) use following moves(using Komciemba's Algorithm.): "<<std::endl;
-        solveCubeWithKociemba(c.cube_state());
+        else if (currentState == CUBE) {
+            // 1. Camera Controls
+            if (IsKeyDown(KEY_LEFT)) cameraAngleH -= 0.05f;
+            if (IsKeyDown(KEY_RIGHT)) cameraAngleH += 0.05f;
+            if (IsKeyDown(KEY_UP)) cameraAngleV += 0.05f;
+            if (IsKeyDown(KEY_DOWN)) cameraAngleV -= 0.05f;
+            
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+                Vector2 delta = GetMouseDelta();
+                cameraAngleH += delta.x * 0.01f;
+                cameraAngleV += delta.y * 0.01f;
+            }
+            
+            cameraDist -= GetMouseWheelMove() * 2.0f;
+            if (cameraDist < 2.0f) cameraDist = 2.0f;
+
+            // Clamp vertical angle
+            if (cameraAngleV > 1.5f) cameraAngleV = 1.5f;
+            if (cameraAngleV < -1.5f) cameraAngleV = -1.5f;
+
+            // Calculate Position
+            float hDist = cameraDist * cos(cameraAngleV);
+            camera.position.y = cameraDist * sin(cameraAngleV);
+            camera.position.x = hDist * sin(cameraAngleH);
+            camera.position.z = hDist * cos(cameraAngleH);
+            camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
+
+            // 2. Cube Move Inputs
+            // Calculate Quadrant
+            float angle = cameraAngleH;
+            while (angle < 0) angle += 2 * PI;
+            while (angle >= 2 * PI) angle -= 2 * PI;
+            int quadrant = (int)((angle + PI / 4.0f) / (PI / 2.0f)) % 4;
+
+            bool shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+
+            if (IsKeyPressed(KEY_F)) PerformRelativeMove(myCube, 'F', quadrant, shift);
+            if (IsKeyPressed(KEY_B)) PerformRelativeMove(myCube, 'B', quadrant, shift);
+            if (IsKeyPressed(KEY_L)) PerformRelativeMove(myCube, 'L', quadrant, shift);
+            if (IsKeyPressed(KEY_R)) PerformRelativeMove(myCube, 'R', quadrant, shift);
+            if (IsKeyPressed(KEY_U)) PerformRelativeMove(myCube, 'U', quadrant, shift);
+            if (IsKeyPressed(KEY_D)) PerformRelativeMove(myCube, 'D', quadrant, shift);
+            
+            // Go back to menu
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                delete myCube;
+                myCube = nullptr;
+                currentState = MENU;
+            }
+        }
+
+        // --- DRAWING ---
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        if (currentState == MENU) {
+            DrawText("RUBIK'S CUBE MASTER", 220, 200, 50, DARKBLUE);
+            DrawText("Press a Number Key (2 - 9)", 300, 350, 30, DARKGRAY);
+            DrawText("to select Cube Dimension", 320, 390, 30, DARKGRAY);
+            
+            // Draw visual examples
+            DrawRectangleLines(300, 500, 60, 60, BLACK); DrawText("2", 320, 515, 30, BLACK);
+            DrawRectangleLines(400, 500, 60, 60, BLACK); DrawText("3", 420, 515, 30, BLACK);
+            DrawRectangleLines(500, 500, 60, 60, BLACK); DrawText("4", 520, 515, 30, BLACK);
+        }
+        else if (currentState == CUBE && myCube != nullptr) {
+            BeginMode3D(camera);
+            
+            int n = cubeDim;
+            float spacing = 1.05f;
+            float offset = (n - 1) / 2.0f;
+
+            for (int x = 0; x < n; x++) {
+                for (int y = 0; y < n; y++) {
+                    for (int z = 0; z < n; z++) {
+                        float wx = (x - offset) * spacing;
+                        float wy = (y - offset) * spacing;
+                        float wz = (z - offset) * spacing;
+                        Vector3 pos = { wx, wy, wz };
+
+                        DrawCube(pos, 1.0f, 1.0f, 1.0f, BLACK);
+                        DrawCubeWires(pos, 1.0f, 1.0f, 1.0f, DARKGRAY);
+
+                        float sSize = 0.9f;
+                        float sOff = 0.51f;
+
+                        // Sticker Drawing Logic
+                        if (x == n - 1) { // Right
+                            Color c = GetColorFromCode(myCube->getColorCode("R", (n-1)-y, (n-1)-z));
+                            DrawCube((Vector3){wx+sOff, wy, wz}, 0.05f, sSize, sSize, c);
+                        }
+                        if (x == 0) { // Left
+                            Color c = GetColorFromCode(myCube->getColorCode("L", (n-1)-y, z));
+                            DrawCube((Vector3){wx-sOff, wy, wz}, 0.05f, sSize, sSize, c);
+                        }
+                        if (y == n - 1) { // Up
+                            Color c = GetColorFromCode(myCube->getColorCode("U", z, x));
+                            DrawCube((Vector3){wx, wy+sOff, wz}, sSize, 0.05f, sSize, c);
+                        }
+                        if (y == 0) { // Down
+                            Color c = GetColorFromCode(myCube->getColorCode("D", (n-1)-z, x));
+                            DrawCube((Vector3){wx, wy-sOff, wz}, sSize, 0.05f, sSize, c);
+                        }
+                        if (z == n - 1) { // Front
+                            Color c = GetColorFromCode(myCube->getColorCode("F", (n-1)-y, x));
+                            DrawCube((Vector3){wx, wy, wz+sOff}, sSize, sSize, 0.05f, c);
+                        }
+                        if (z == 0) { // Back
+                            Color c = GetColorFromCode(myCube->getColorCode("B", (n-1)-y, (n-1)-x));
+                            DrawCube((Vector3){wx, wy, wz-sOff}, sSize, sSize, 0.05f, c);
+                        }
+                    }
+                }
+            }
+            EndMode3D();
+
+            DrawText("Controls: U D L R F B (Shift for inverse)", 10, 10, 20, DARKGRAY);
+            DrawText("Backspace: Menu", 10, 40, 20, DARKGRAY);
+        }
+
+        EndDrawing();
     }
-    else return 0;
-}
+
+    if(myCube) delete myCube;
+    CloseWindow();
     return 0;
 }

@@ -20,7 +20,7 @@ public:
     void l();
     void D();
     void d();
-    void M();
+    void M(int col);
     void m();
     void HM();
     void hm();

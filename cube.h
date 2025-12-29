@@ -11,6 +11,8 @@ class Cube{
     bool solved();
     std::string face_state(std::vector<std::vector<std::string>> v);
     std::string cube_state();
+    std::string getColorCode(std::string face, int row, int col);
+
     void reset();
     protected:
     uint8_t dimension;
